@@ -5,10 +5,14 @@ import os
 from dotenv import load_dotenv
 import uuid
 import logging
+
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Load environment variables
 load_dotenv()
 
+# Database configuration
 DB_CONFIG = {
     'dbname': os.getenv('DB_NAME'),
     'user': os.getenv('DB_USER'),
@@ -16,25 +20,23 @@ DB_CONFIG = {
     'host': os.getenv('DB_HOST', 'localhost'),
     'port': os.getenv('DB_PORT', '5432'),
 }
-
 # Validate DB config
-for key, value in DB_CONFIG.items():
-    if not value:
-        raise ValueError(f"Missing required environment variable for DB config: {key}")
+for key, val in DB_CONFIG.items():
+    if not val:
+        raise ValueError(f"Missing DB config: {key}")
 
-# Db table names
+# Tables
 DATA_TABLE = 'data_table'
 META_TABLE = 'metadata_table'
 
-# create tables if they don't exist
-CREATE_DATA_TABLE_SQL = f"""
+# SQL DDL
+CREATE_DATA_TABLE = f"""
 CREATE TABLE IF NOT EXISTS {DATA_TABLE} (
     id UUID PRIMARY KEY,
     data JSONB NOT NULL
 );
 """
-
-CREATE_METADATA_TABLE_SQL = f"""
+CREATE_META_TABLE = f"""
 CREATE TABLE IF NOT EXISTS {META_TABLE} (
     id UUID PRIMARY KEY,
     data_id UUID REFERENCES {DATA_TABLE}(id),
@@ -42,74 +44,97 @@ CREATE TABLE IF NOT EXISTS {META_TABLE} (
 );
 """
 
+# JSON flatten + metadata helpers
+def flatten_json(obj, prefix=''):
+    """Recursively flatten JSON with dot + index notation."""
+    items = {}
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            key = f"{prefix}.{k}" if prefix else k
+            items.update(flatten_json(v, key))
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            key = f"{prefix}[{i}]"
+            items.update(flatten_json(v, key))
+    else:
+        items[prefix] = obj
+    return items
+
+def infer_type(v):
+    if isinstance(v, bool): return 'boolean'
+    if isinstance(v, int): return 'integer'
+    if isinstance(v, float): return 'float'
+    if isinstance(v, list): return 'array'
+    if isinstance(v, dict): return 'object'
+    return 'string'
+
+def extract_metadata(data):
+    flat = flatten_json(data)
+    return {k: infer_type(v) for k, v in flat.items()}
+
+# Database operations
 def init_db():
-    """Create tables if they don’t already exist."""
     try:
         with psycopg.connect(**DB_CONFIG) as conn:
             with conn.cursor() as cur:
-                cur.execute(CREATE_DATA_TABLE_SQL)
-                cur.execute(CREATE_METADATA_TABLE_SQL)
-        logging.info("Database initialized successfully.")
+                cur.execute(CREATE_DATA_TABLE)
+                cur.execute(CREATE_META_TABLE)
+        logging.info("Database initialized.")
     except Exception as e:
-        logging.error("Database initialization failed: %s", e)
+        logging.critical("DB init error: %s", e)
         raise
 
-def insert_data_and_metadata(data: dict):
-    """
-    Inserts the raw JSON into data_table and
-    extracts key→type metadata into metadata_table.
-    """
+def save_data_and_meta(payload):
     data_id = str(uuid.uuid4())
-    metadata_id = str(uuid.uuid4())
-    metadata = {k: type(v).__name__ for k, v in data.items()}
-
+    meta_id = str(uuid.uuid4())
+    metadata = extract_metadata(payload)
     try:
         with psycopg.connect(**DB_CONFIG) as conn:
             with conn.cursor() as cur:
+                # Save raw JSON
                 cur.execute(
                     f"INSERT INTO {DATA_TABLE} (id, data) VALUES (%s, %s)",
-                    (data_id, json.dumps(data))
+                    (data_id, json.dumps(payload))
                 )
+                # Save extracted metadata
                 cur.execute(
                     f"INSERT INTO {META_TABLE} (id, data_id, metadata) VALUES (%s, %s, %s)",
-                    (metadata_id, data_id, json.dumps(metadata))
+                    (meta_id, data_id, json.dumps(metadata))
                 )
-        logging.info(f"Inserted data and metadata with IDs: {data_id}, {metadata_id}")
+        logging.info(f"Stored data {data_id} and metadata {meta_id}.")
     except Exception as e:
-        logging.error("Data insertion failed: %s", e)
+        logging.error("Insert failed: %s", e)
         raise
 
-class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-    def _set_headers(self, status=200):
-        self.send_response(status)
+# HTTP handler
+class Handler(BaseHTTPRequestHandler):
+    def _set_headers(self, code=200):
+        self.send_response(code)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
 
     def do_POST(self):
-        content_length = int(self.headers.get('Content-Length', 0))
-        body = self.rfile.read(content_length)
+        length = int(self.headers.get('Content-Length', 0))
+        raw = self.rfile.read(length)
         try:
-            payload = json.loads(body.decode('utf-8'))
-            insert_data_and_metadata(payload)
+            payload = json.loads(raw)
+            save_data_and_meta(payload)
             self._set_headers(200)
-            self.wfile.write(json.dumps({'status': 'success'}).encode('utf-8'))
+            self.wfile.write(json.dumps({'status': 'success'}).encode())
         except json.JSONDecodeError:
             self._set_headers(400)
-            self.wfile.write(json.dumps({'status': 'error', 'message': 'Invalid JSON'}).encode('utf-8'))
+            self.wfile.write(json.dumps({'error': 'Invalid JSON'}).encode())
         except Exception as e:
-            logging.exception("Unhandled error during request processing")
+            logging.exception("Request error")
             self._set_headers(500)
-            self.wfile.write(json.dumps({'status': 'error', 'message': str(e)}).encode('utf-8'))
+            self.wfile.write(json.dumps({'error': str(e)}).encode())
 
-def run(server_class=HTTPServer, handler_class=SimpleHTTPRequestHandler, port=8000):
-    try:
-        init_db()
-        server_address = ('', port)
-        httpd = server_class(server_address, handler_class)
-        logging.info(f"Starting HTTP server on port {port}...")
-        httpd.serve_forever()
-    except Exception as e:
-        logging.critical("Failed to start server: %s", e)
+# Run server
+def run(port=8000):
+    init_db()
+    server = HTTPServer(('', port), Handler)
+    logging.info(f"Server listening on {port}")
+    server.serve_forever()
 
 if __name__ == '__main__':
     run()
