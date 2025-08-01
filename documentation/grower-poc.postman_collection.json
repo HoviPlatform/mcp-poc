@@ -1,0 +1,180 @@
+{
+	"info": {
+		"_postman_id": "9c3b7ddf-e6cc-4d14-8037-a0fd5e8df236",
+		"name": "grower poc",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3347871"
+	},
+	"item": [
+		{
+			"name": "add advertiser",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": \n  {\n    \"_airbyte_ab_id\": \"caa4ba6f-3a79-4137-b73e-07643d88a0f3\",\n    \"_airbyte_data\": {\n      \"language\": \"\",\n      \"license_no\": \"105762\",\n      \"industry\": \"290606\",\n      \"display_timezone\": \"Asia/Beirut\",\n      \"balance\": 0,\n      \"contacter\": \"\",\n      \"timezone\": \"Etc/GMT-2\",\n      \"name\": \"Hovi Digital Lab\",\n      \"role\": \"ROLE_ADVERTISER\",\n      \"currency\": \"AED\",\n      \"advertiser_id\": 7480194783550849040,\n      \"email\": \"\",\n      \"telephone_number\": \"\",\n      \"advertiser_account_type\": \"AUCTION\",\n      \"promotion_area\": \"0\",\n      \"cellphone_number\": \"\",\n      \"create_time\": 1741618579,\n      \"description\": \"thegrower.ai\",\n      \"status\": \"STATUS_ENABLE\",\n      \"company\": \"Grwr AI Platform FZ-LLC\",\n      \"country\": \"AE\"\n    },\n    \"_airbyte_emitted_at\": 1751899273393\n  },\n    \"elemtype\": \"advertiser\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add ad",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": \n {\n    \"_airbyte_ab_id\": \"fcc8dfe1-ac20-4a19-a964-adcaaabed86a\",\n    \"_airbyte_data\": {\n      \"landing_page_url\": \"https://thehovi.com/book-a-demo/?utm_source=tiktok&utm_medium=paid&utm_id=__CAMPAIGN_ID__&utm_campaign=__CAMPAIGN_NAME__\",\n      \"app_name\": \"HOVI Digital Lab\",\n      \"image_ids\": [\n        \"tos-alisg-p-0051c001-sg/o49oljii2A1fAN56gEFwLCQD2fkJmMwEBDBAvI\"\n      ],\n      \"video_id\": \"v10033g50000d0nghdnog65vup4ac9o0\",\n      \"playable_url\": \"\",\n      \"adgroup_name\": \"KSA Ad Group | 35+\",\n      \"advertiser_id\": 7480194783550849040,\n      \"ad_id\": 1832819364638865,\n      \"identity_id\": \"431d57df-68cc-5cff-92ac-8b679b02ab06\",\n      \"modify_time\": \"2025-06-01 07:11:01\",\n      \"viewability_postbid_partner\": \"UNSET\",\n      \"campaign_id\": 1832814488172594,\n      \"call_to_action_id\": \"7507236937430780944\",\n      \"optimization_event\": \"FORM\",\n      \"ad_text\": \"We turn prospects into conversions. HOVI delivers reliable lead generation for KSA businesses!\",\n      \"adgroup_id\": 1832814611852305,\n      \"dark_post_status\": \"OFF\",\n      \"utm_params\": [\n        { \"value\": \"tiktok\", \"key\": \"utm_source\" },\n        { \"value\": \"paid\", \"key\": \"utm_medium\" },\n        { \"value\": \"__CAMPAIGN_ID__\", \"key\": \"utm_id\" },\n        { \"value\": \"__CAMPAIGN_NAME__\", \"key\": \"utm_campaign\" }\n      ],\n      \"tracking_pixel_id\": 7507213180368666641,\n      \"vast_moat_enabled\": false,\n      \"secondary_status\": \"AD_STATUS_DONE\",\n      \"is_new_structure\": true,\n      \"identity_type\": \"TT_USER\",\n      \"brand_safety_postbid_partner\": \"UNSET\",\n      \"tiktok_item_id\": \"7508754161152904454\",\n      \"profile_image_url\": \"\",\n      \"ad_name\": \"English Story Video\",\n      \"avatar_icon_web_uri\": \"\",\n      \"create_time\": \"2025-05-22 11:54:06\",\n      \"is_aco\": false,\n      \"display_name\": \"HOVI Digital Lab\",\n      \"branded_content_disabled\": \"False\",\n      \"campaign_name\": \"HOVI | Lead Gen May 2025 Campaign | KSA | EN | Website\",\n      \"ad_format\": \"SINGLE_VIDEO\",\n      \"operation_status\": \"ENABLE\",\n      \"creative_authorized\": true\n    },\n    \"_airbyte_emitted_at\": 1751899276022\n  },\n    \"elemtype\": \"ads\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add ad_group",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": \n {\n    \"_airbyte_ab_id\": \"fcc8dfe1-ac20-4a19-a964-adcaaabed86a\",\n    \"_airbyte_data\": {\n      \"share_disabled\": false,\n      \"creative_material_mode\": \"CUSTOM\",\n      \"dayparting\": \"111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111\",\n      \"placements\": [\"PLACEMENT_TIKTOK\"],\n      \"is_hfss\": false,\n      \"secondary_status\": \"ADGROUP_STATUS_TIME_DONE\",\n      \"category_exclusion_ids\": [\"200\"],\n      \"skip_learning_phase\": 1,\n      \"is_new_structure\": true,\n      \"targeting_expansion\": {\n        \"expansion_types\": [],\n        \"expansion_enabled\": false\n      },\n      \"device_price_ranges\": [],\n      \"spending_power\": \"ALL\",\n      \"billing_event\": \"OCPM\",\n      \"adgroup_name\": \"KSA Ad Group | 35+\",\n      \"pixel_id\": 7507213180368666641,\n      \"schedule_type\": \"SCHEDULE_START_END\",\n      \"brand_safety_type\": \"LIMITED_INVENTORY\",\n      \"network_types\": [],\n      \"household_income\": [],\n      \"optimization_goal\": \"CONVERT\",\n      \"bid_price\": 0,\n      \"languages\": [],\n      \"excluded_audience_ids\": [],\n      \"search_result_enabled\": true,\n      \"age_groups\": [\"AGE_35_44\", \"AGE_45_54\", \"AGE_55_100\"],\n      \"is_smart_performance_campaign\": false,\n      \"deep_cpa_bid\": 0,\n      \"optimization_event\": \"FORM\",\n      \"create_time\": \"2025-05-22 11:54:06\",\n      \"campaign_name\": \"HOVI | Lead Gen May 2025 Campaign | KSA | EN | Website\",\n      \"schedule_start_time\": \"2025-05-22 15:06:41\",\n      \"operating_systems\": [],\n      \"gender\": \"GENDER_UNLIMITED\",\n      \"category_id\": 0,\n      \"placement_type\": \"PLACEMENT_TYPE_NORMAL\",\n      \"promotion_type\": \"LEAD_GENERATION\",\n      \"campaign_id\": 1832814488172594,\n      \"inventory_filter_enabled\": false,\n      \"interest_category_ids\": [24112],\n      \"bid_display_mode\": \"CPMV\",\n      \"ios14_quota_type\": \"UNOCCUPIED\",\n      \"budget_mode\": \"BUDGET_MODE_DYNAMIC_DAILY_BUDGET\",\n      \"interest_keyword_ids\": [],\n      \"adgroup_id\": 1832814611852305,\n      \"actions\": [],\n      \"operation_status\": \"ENABLE\",\n      \"pacing\": \"PACING_MODE_SMOOTH\",\n      \"advertiser_id\": 7480194783550849040,\n      \"modify_time\": \"2025-05-31 18:53:14\",\n      \"budget\": 50,\n      \"audience_ids\": [],\n      \"comment_disabled\": false,\n      \"conversion_bid_price\": 0,\n      \"included_custom_actions\": [],\n      \"location_ids\": [102358],\n      \"auto_targeting_enabled\": false,\n      \"bid_type\": \"BID_TYPE_NO_BID\",\n      \"isp_ids\": [],\n      \"device_model_ids\": [],\n      \"video_download_disabled\": false,\n      \"contextual_tag_ids\": [],\n      \"schedule_end_time\": \"2025-06-01 11:04:08\",\n      \"excluded_custom_actions\": [],\n      \"scheduled_budget\": 0\n    },\n    \"_airbyte_emitted_at\": 1751899276022\n  },\n    \"elemtype\": \"ad_group\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add campaign",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": \n  {\n    \"_airbyte_ab_id\": \"3e084b44-23a4-4806-aff0-4fcbb811bb46\",\n    \"_airbyte_data\": {\n      \"modify_time\": \"2025-05-29 13:10:17\",\n      \"budget\": 0,\n      \"is_search_campaign\": false,\n      \"advertiser_id\": 7480194783550849040,\n      \"is_new_structure\": true,\n      \"is_smart_performance_campaign\": false,\n      \"budget_mode\": \"BUDGET_MODE_INFINITE\",\n      \"app_promotion_type\": \"UNSET\",\n      \"create_time\": \"2025-05-22 11:54:06\",\n      \"campaign_name\": \"HOVI | Lead Gen May 2025 Campaign | KSA | EN | Website\",\n      \"campaign_type\": \"REGULAR_CAMPAIGN\",\n      \"roas_bid\": 0,\n      \"objective\": \"LANDING_PAGE\",\n      \"objective_type\": \"LEAD_GENERATION\",\n      \"campaign_id\": 1832814488172594,\n      \"operation_status\": \"ENABLE\",\n      \"secondary_status\": \"CAMPAIGN_STATUS_ENABLE\"\n    },\n    \"_airbyte_emitted_at\": 1751899275190\n  },\n    \"elemtype\": \"campaign\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add ad metrics",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": {\n        \"testid\": 222 ,\n        \"_airbyte_ab_id\": \"2999999-1361-4a8a-b985-6bebef31010e\",\n        \"_airbyte_data\": {\n            \"metrics\": {\n                \"secondary_goal_result_rate\": 222,\n                \"total_pageview\": \"0\",\n                \"tt_app_name\": \"0\",\n                \"impressions\": \"13\",\n                \"purchase_rate\": 0,\n                \"sales_lead\": 0,\n                \"spend\": \"0.00\",\n                \"ad_text\": \"We turn prospects into conversions. HOVI delivers reliable lead generation for KSA businesses!\",\n                \"app_install\": 0,\n                \"onsite_shopping\": \"0\",\n                \"real_time_cost_per_conversion\": \"0.00\",\n                \"real_time_cost_per_result\": \"0.00\",\n                \"cost_per_sales_lead\": 0,\n                \"placement_type\": \"TikTok\",\n                \"total_onsite_shopping_value\": \"0.00\",\n                \"cost_per_total_app_event_add_to_cart\": 0,\n                \"cta_conversion\": \"0\",\n                \"real_time_conversion_rate\": \"0.00\",\n                \"vta_conversion\": \"0\",\n                \"conversion_rate\": \"0.00\",\n                \"cost_per_registration\": 0,\n                \"cost_per_conversion\": \"0.00\",\n                \"cpc\": \"0.00\",\n                \"real_time_conversion\": \"0\",\n                \"campaign_id\": 1832814488172594,\n                \"total_purchase_value\": \"0.00\",\n                \"complete_payment\": \"0\",\n                \"cost_per_secondary_goal_result\": null,\n                \"total_complete_payment_rate\": \"0.00\",\n                \"video_play_actions\": 13,\n                \"frequency\": \"1.00\",\n                \"result_rate\": \"0.00\",\n                \"adgroup_id\": 1832814611852305,\n                \"video_views_p100\": 0,\n                \"purchase\": 0,\n                \"dpa_target_audience_type\": null,\n                \"registration_rate\": 0,\n                \"total_app_event_add_to_cart\": 0,\n                \"video_watched_2s\": 1,\n                \"profile_visits_rate\": 0,\n                \"video_views_p75\": 0,\n                \"comments\": 0,\n                \"tt_app_id\": 0,\n                \"average_video_play_per_user\": 1.06,\n                \"cost_per_app_install\": 0,\n                \"video_watched_6s\": 0,\n                \"sales_lead_rate\": 0,\n                \"video_views_p25\": 0,\n                \"cta_purchase\": \"0\",\n                \"ctr\": \"0.00\",\n                \"adgroup_name\": \"KSA Ad Group | 35+\",\n                \"real_time_app_install_cost\": 0,\n                \"real_time_result\": \"0\",\n                \"registration\": 0,\n                \"cpm\": \"0.00\",\n                \"shares\": 0,\n                \"clicks\": \"0\",\n                \"secondary_goal_result\": null,\n                \"average_video_play\": 1.06,\n                \"cost_per_result\": \"0.00\",\n                \"real_time_app_install\": 0,\n                \"clicks_on_music_disc\": 0,\n                \"promotion_type\": \"Website\",\n                \"cost_per_total_sales_lead\": 0,\n                \"conversion\": \"0\",\n                \"cost_per_purchase\": 0,\n                \"reach\": \"13\",\n                \"ad_name\": \"English Story Video\",\n                \"profile_visits\": 0,\n                \"result\": \"0\",\n                \"value_per_complete_payment\": \"0.00\",\n                \"video_views_p50\": 0,\n                \"campaign_name\": \"HOVI | Lead Gen May 2025 Campaign | KSA | EN | Website\",\n                \"real_time_result_rate\": \"0.00\",\n                \"likes\": 0,\n                \"mobile_app_id\": \"0\",\n                \"vta_purchase\": \"0\",\n                \"follows\": 0,\n                \"cost_per_1000_reached\": \"0.00\"\n            },\n            \"dimensions\": {\n                \"ad_id\": 1832819364638865,\n                \"stat_time_day\": \"2025-06-01 00:00:00\"\n            },\n            \"stat_time_day\": \"2025-06-01 00:00:00\",\n            \"ad_id\": 1832819364638865\n        },\n        \"_airbyte_emitted_at\": 1751899275426\n    },\n    \"elemtype\": \"metrics\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get prompt/sql trigger with params description",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/generate?params=[\n  {\n    \"metric\": \"objective_type\",\n    \"description\": \"Defines the core goal of the campaign (e.g., APP_PROMOTION). It determines how success is measured whether through app installs, in-app events, traffic, or reach.\"\n  },\n  {\n    \"metric\": \"campaign_type\",\n    \"description\": \"Specifies the structural type of campaign. REGULAR_CAMPAIGN follows standard logic, while IOS14_CAMPAIGN is optimized for Apple’s post‑iOS14 privacy restrictions, impacting tracking granularity and targeting availability.\"\n  },\n  {\n    \"metric\": \"spend\",\n    \"description\": \"Total amount spent on the campaign. Critical for evaluating budget consumption, efficiency (CPA, CPM), and for calculating derived performance metrics like ROAS or cost per event.\"\n  },\n  {\n    \"metric\": \"success_metric_type\",\n    \"description\": \"Dynamic label for the key conversion event (e.g., Install, In App Event). Pulled from the ad platform based on objective_type. It defines what counts as a \\\"conversion\\\" for reporting and optimization.\"\n  },\n  {\n    \"metric\": \"success_metric_value\",\n    \"description\": \"Number of times the campaign achieved the success metric (e.g., 3 installs or 568 in‑app events). This is the primary outcome indicator and feeds into ROI and CPA calculations.\"\n  },\n  {\n    \"metric\": \"cost_per_success_metric\",\n    \"description\": \"Shows how much it costs to drive one successful outcome (conversion), calculated as spend / success_metric_value. This is a leading efficiency indicator used for budget reallocation and scaling decisions.\"\n  },\n  {\n    \"metric\": \"impressions\",\n    \"description\": \"The number of times your ad was served to users. Indicates reach and visibility. Used to calculate upper‑funnel metrics like CPM and CTR.\"\n  },\n  {\n    \"metric\": \"cpm\",\n    \"description\": \"Cost per 1,000 impressions. Indicates how expensive it is to show your ad at scale. A high CPM may reflect expensive audience targeting or poor creative performance.\"\n  },\n  {\n    \"metric\": \"clicks\",\n    \"description\": \"The total number of user clicks on the ad. Tracks direct interaction and is often used as an intent signal for evaluating engagement.\"\n  },\n  {\n    \"metric\": \"ctr\",\n    \"description\": \"Click‑through rate = clicks / impressions * 100. Measures how compelling the ad is for the audience. A low CTR typically indicates poor targeting, weak creative, or misaligned messaging.\"\n  }\n]",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"generate"
+					],
+					"query": [
+						{
+							"key": "params",
+							"value": "[\n  {\n    \"metric\": \"objective_type\",\n    \"description\": \"Defines the core goal of the campaign (e.g., APP_PROMOTION). It determines how success is measured whether through app installs, in-app events, traffic, or reach.\"\n  },\n  {\n    \"metric\": \"campaign_type\",\n    \"description\": \"Specifies the structural type of campaign. REGULAR_CAMPAIGN follows standard logic, while IOS14_CAMPAIGN is optimized for Apple’s post‑iOS14 privacy restrictions, impacting tracking granularity and targeting availability.\"\n  },\n  {\n    \"metric\": \"spend\",\n    \"description\": \"Total amount spent on the campaign. Critical for evaluating budget consumption, efficiency (CPA, CPM), and for calculating derived performance metrics like ROAS or cost per event.\"\n  },\n  {\n    \"metric\": \"success_metric_type\",\n    \"description\": \"Dynamic label for the key conversion event (e.g., Install, In App Event). Pulled from the ad platform based on objective_type. It defines what counts as a \\\"conversion\\\" for reporting and optimization.\"\n  },\n  {\n    \"metric\": \"success_metric_value\",\n    \"description\": \"Number of times the campaign achieved the success metric (e.g., 3 installs or 568 in‑app events). This is the primary outcome indicator and feeds into ROI and CPA calculations.\"\n  },\n  {\n    \"metric\": \"cost_per_success_metric\",\n    \"description\": \"Shows how much it costs to drive one successful outcome (conversion), calculated as spend / success_metric_value. This is a leading efficiency indicator used for budget reallocation and scaling decisions.\"\n  },\n  {\n    \"metric\": \"impressions\",\n    \"description\": \"The number of times your ad was served to users. Indicates reach and visibility. Used to calculate upper‑funnel metrics like CPM and CTR.\"\n  },\n  {\n    \"metric\": \"cpm\",\n    \"description\": \"Cost per 1,000 impressions. Indicates how expensive it is to show your ad at scale. A high CPM may reflect expensive audience targeting or poor creative performance.\"\n  },\n  {\n    \"metric\": \"clicks\",\n    \"description\": \"The total number of user clicks on the ad. Tracks direct interaction and is often used as an intent signal for evaluating engagement.\"\n  },\n  {\n    \"metric\": \"ctr\",\n    \"description\": \"Click‑through rate = clicks / impressions * 100. Measures how compelling the ad is for the audience. A low CTR typically indicates poor targeting, weak creative, or misaligned messaging.\"\n  }\n]"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
