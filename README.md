@@ -53,7 +53,7 @@ Make sure:
 
 ---
 
-### 📘 API Documentation (Postman)
+### API Documentation (Postman)
 
 All API endpoints are documented in a Postman collection located at:
 
@@ -61,7 +61,7 @@ All API endpoints are documented in a Postman collection located at:
 documentation/grower-poc.postman_collection.json
 ```
 
-## 🚀 Step 4: Run the Script
+## Step 4: Run the Script
 
 Before running, make sure you export your Claude API key:
 
@@ -74,7 +74,7 @@ python claude_test.py
 
 ---
 
-## 📝 Notes
+## Notes
 
 - **Claude prompt file**: Make sure `prompt.txt` exists in the same directory.
 - **Token safety**: This script prevents infinite loops by using a `try-except` block and has `max_tokens` set to 1024.
