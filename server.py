@@ -8,6 +8,7 @@ import uuid
 import logging
 from urllib.parse import urlparse, parse_qs
 from generate_service import handle_generate_request
+import requests
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -33,6 +34,7 @@ ADVERTISERS_TABLE = 'advertisers'
 CAMPAIGNS_TABLE = 'campaigns'
 AD_GROUPS_TABLE = 'ad_groups'
 ADS_TABLE = 'ads'
+CLAUDE_PROMPT_LOGS = 'claude_prompt_logs'
 # DDL for tables
 CREATE_DATA_TABLE = f"""
 CREATE TABLE IF NOT EXISTS {DATA_TABLE} (
@@ -202,6 +204,14 @@ CREATE TABLE IF NOT EXISTS {ADS_TABLE} (
   creative_authorized BOOLEAN
 );
 """
+CREATE_CLAUDE_PROMPT_LOGS_TABLE = f"""
+CREATE TABLE IF NOT EXISTS {CLAUDE_PROMPT_LOGS} (
+    id SERIAL PRIMARY KEY,
+    prompt TEXT NOT NULL,
+    response TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+"""
 # Helpers for flattening and typing
 def flatten_json(obj, prefix=''):
     items = {}
@@ -239,6 +249,7 @@ def init_db():
             cur.execute(CREATE_CAMPAIGNS_TABLE)
             cur.execute(CREATE_AD_GROUP_TABLE)
             cur.execute(CREATE_ADS_TABLE)
+            cur.execute(CREATE_CLAUDE_PROMPT_LOGS_TABLE)
     logging.info("Database initialized.")
 
 # Ingest endpoint logic
@@ -441,20 +452,87 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-
     def do_POST(self):
-        """Ingest endpoint: save metrics + raw_data."""
+        parsed = urlparse(self.path)
+        logging.info("Incoming POST %s", parsed.path)
+
+        # ── Claude Prompt Endpoint ───────────────────────────────
+        if parsed.path == '/claude_prompt':
+            ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+            CLAUDE_API_URL    = "https://api.anthropic.com/v1/messages"
+
+            length = int(self.headers.get('Content-Length', 0))
+            logging.info("Reading %d bytes for Claude prompt", length)
+            raw = self.rfile.read(length)
+            prompt = raw.decode('utf-8', errors='replace')
+            logging.debug("Prompt received: %s", prompt[:200] + ('…' if len(prompt)>200 else ''))
+
+            if not prompt.strip():
+                logging.warning("No prompt provided in body")
+                self._set_headers(400)
+                self.wfile.write(json.dumps({'error': "Missing 'prompt' in request body"}).encode())
+                return
+
+            try:
+                headers = {
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json"
+                }
+                body = {
+                    "model": "claude-sonnet-4-20250514",
+                    "max_tokens": 4096,
+                    "temperature": 0.7,
+                    "messages": [{"role": "user", "content": prompt}]
+                }
+                logging.info("Sending prompt to Claude API")
+                resp = requests.post(CLAUDE_API_URL, headers=headers, json=body)
+                resp.raise_for_status()
+
+                reply = resp.json()["content"][0]["text"]
+                logging.info("Received response from Claude (length %d)", len(reply))
+
+                logging.info("Saving prompt/response to DB")
+                with psycopg.connect(**DB_CONFIG) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "INSERT INTO claude_prompt_logs (prompt, response) VALUES (%s, %s)",
+                            (prompt, reply)
+                        )
+                logging.info("Saved to claude_prompt_logs")
+
+                self._set_headers(200)
+                self.wfile.write(json.dumps({'prompt': prompt, 'response': reply}).encode())
+
+            except Exception as e:
+                logging.exception("Error handling /claude_prompt")
+                self._set_headers(500)
+                self.wfile.write(json.dumps({'error': 'Internal server error'}).encode())
+            return
+
+        # ── Ingest Endpoint ────────────────────────────────────────
         length = int(self.headers.get('Content-Length', 0))
-        raw    = self.rfile.read(length)
+        logging.info("Reading %d bytes for ingest", length)
+        raw = self.rfile.read(length)
+        logging.debug("Ingest raw body: %s", raw.decode('utf-8', errors='replace'))
+
         try:
             payload = json.loads(raw)
+            logging.info("Parsed ingest JSON keys: %s", list(payload.keys()))
             save_metrics_and_meta(payload)
+            logging.info("save_metrics_and_meta() succeeded")
+
             self._set_headers(200)
-            self.wfile.write(json.dumps({'status': 'success'}).encode())
+            resp = {'status': 'success'}
+            logging.info("Responding with: %s", resp)
+            self.wfile.write(json.dumps(resp).encode())
+
         except Exception as e:
             logging.exception("Ingest error")
             self._set_headers(500)
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
+            resp = {'error': str(e)}
+            logging.info("Responding with: %s", resp)
+            self.wfile.write(json.dumps(resp).encode())
 
     def do_GET(self):
         """Generate SQL: GET /generate?params=[...]"""

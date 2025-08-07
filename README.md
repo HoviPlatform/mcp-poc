@@ -74,6 +74,17 @@ python claude_test.py
 
 ---
 
+##  Docker Setup
+
+### Build & Run with Docker Compose
+
+```bash
+# Copy .env.template to .env and fill in values:
+cp .env.example .env
+
+# Start Postgres and app together:
+docker-compose up --build
+
 ## Notes
 
 - **Claude prompt file**: Make sure `prompt.txt` exists in the same directory.
