@@ -9,6 +9,8 @@ import logging
 from urllib.parse import urlparse, parse_qs
 from generate_service import handle_generate_request
 import requests
+import sqlparse
+import regex as re
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -446,6 +448,56 @@ def save_metrics_and_meta(payload):
             with conn.cursor() as cur:
                 cur.execute(insert_query, ab_data)
         logging.info("ad successfully added")
+
+def handle_claude_sql_response(raw_response: str):
+    try:
+        print("raw resp")
+        print(raw_response)
+        # Step 1: Extract and parse JSON object
+        # claude_response = json.loads(raw_response)
+        # sql_query_v2 = claude_response["sql_query"]
+        json_string = re.search(r'```json\s*\n(.*?)\n```', raw_response, re.DOTALL).group(1)
+        print(" json_string")
+        print(json_string)
+        parsed = json.loads(json_string)
+        print(" parsed")
+        print(parsed)
+        # Step 2: Validate structure
+        if "sql_query" not in parsed or not parsed["sql_query"].strip():
+            raise ValueError("Missing or empty 'sql_query' in Claude response")
+
+        sql_query = parsed["sql_query"].strip()
+        print("sql_query")
+        print(sql_query)
+        # Step 3: (Optional) Basic SQL syntax check
+        parsed_sql = sqlparse.parse(sql_query)
+        if not parsed_sql or len(parsed_sql) == 0:
+            raise ValueError("Invalid SQL syntax")
+
+        # Step 4: Execute the SQL query
+        with psycopg.connect(**DB_CONFIG) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql_query)
+                if cur.description:  # SELECT-like
+                    columns = [desc.name for desc in cur.description]
+                    rows = cur.fetchall()
+                    result = [dict(zip(columns, row)) for row in rows]
+                else:  # INSERT/UPDATE/DELETE
+                    result = {"rowcount": cur.rowcount}
+
+        # return {
+        #     "status": "success",
+        #     "sql_query": sql_query,
+        #     "result": result
+        # }
+        return {"result": result}
+
+    except (json.JSONDecodeError, ValueError) as e:
+        return {"status": "error", "message": str(e)}
+    except Exception as e:
+        logging.exception("Error processing Claude SQL response")
+        return {"status": "error", "message": "Internal server error"}
+
 # HTTP request handler
 class Handler(BaseHTTPRequestHandler):
     def _set_headers(self, code=200):
@@ -488,7 +540,6 @@ class Handler(BaseHTTPRequestHandler):
                 logging.info("Sending prompt to Claude API")
                 resp = requests.post(CLAUDE_API_URL, headers=headers, json=body)
                 resp.raise_for_status()
-
                 reply = resp.json()["content"][0]["text"]
                 logging.info("Received response from Claude (length %d)", len(reply))
 
@@ -500,12 +551,14 @@ class Handler(BaseHTTPRequestHandler):
                             (prompt, reply)
                         )
                 logging.info("Saved to claude_prompt_logs")
-
+                sqlres = handle_claude_sql_response(reply)
+                print("sqlres: " )
+                print(sqlres)
                 self._set_headers(200)
-                self.wfile.write(json.dumps({'prompt': prompt, 'response': reply}).encode())
+                self.wfile.write(json.dumps({'prompt': prompt, 'response': reply, 'sqlres': str(sqlres)}).encode())
 
             except Exception as e:
-                logging.exception("Error handling /claude_prompt")
+                logging.exception("Error handling /claude_prompt: " ,e)
                 self._set_headers(500)
                 self.wfile.write(json.dumps({'error': 'Internal server error'}).encode())
             return
