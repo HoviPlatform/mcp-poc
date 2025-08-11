@@ -205,5 +205,7 @@ And the following metrics to retrieve:
 Generate a single optimized SQL SELECT statement or series of statements to fetch these metrics using only the available fields.
 Provide the sql separate to any comments so that it can be ran without modifications.
 
-If a metric cannot be directly retrieved, include a comment explaining why or suggest a fallback."
+If a metric cannot be directly retrieved, include a comment explaining why or suggest a fallback.
+Please respond only in valid JSON format, with the SQL query under the key "sql_query", and any brief explanation under the key "notes".
+Do not include any text outside the JSON object."
 }
