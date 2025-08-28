@@ -498,6 +498,54 @@ def handle_claude_sql_response(raw_response: str):
         logging.exception("Error processing Claude SQL response")
         return {"status": "error", "message": "Internal server error"}
 
+def build_translation_prompt(extra_input: str) -> str:
+    base_dir = os.path.join(os.path.dirname(__file__), "prompts")
+    with open(os.path.join(base_dir, "identity-human-translator.txt"), "r", encoding="utf-8") as f:
+        prompt_a = f.read().strip()
+
+    with open(os.path.join(base_dir, "db-metadata.txt"), "r", encoding="utf-8") as f:
+        prompt_b = f.read().strip()
+        
+    with open(os.path.join(base_dir, "final-format-human-translator.txt"), "r", encoding="utf-8") as f:
+        prompt_c = f.read().strip()
+
+    full_prompt = f"{prompt_a}\n\n{prompt_b}\n\n{prompt_c}\n\n{extra_input.strip()}"
+
+    return full_prompt
+
+def build_sql_prompt(extra_input: str) -> str:
+    base_dir = os.path.join(os.path.dirname(__file__), "prompts")
+    with open(os.path.join(base_dir, "identity-sql.txt"), "r", encoding="utf-8") as f:
+        prompt_a = f.read().strip()
+
+    with open(os.path.join(base_dir, "db-metadata.txt"), "r", encoding="utf-8") as f:
+        prompt_b = f.read().strip()
+        
+    with open(os.path.join(base_dir, "final-format-sql.txt"), "r", encoding="utf-8") as f:
+        prompt_c = f.read().strip()
+
+    full_prompt = f"{prompt_a}\n\n{prompt_b}\n\n{json.dumps(extra_input)}\n\n{prompt_c}"
+
+    return full_prompt
+
+def trim_required_fields(raw_response: str):
+    try:
+        json_string = re.search(r'```json\s*\n(.*?)\n```', raw_response, re.DOTALL).group(1)
+        parsed = json.loads(json_string)
+        if "required_fields" not in parsed or not parsed["required_fields"].strip():
+            raise ValueError("Missing or empty 'required_fields' in Claude response")
+        
+        if "calculated_metrics" not in parsed or not parsed["calculated_metrics"].strip():
+            raise ValueError("Missing or empty 'calculated_metrics' in Claude response")
+
+        return json.dumps(parsed)
+
+    except (json.JSONDecodeError, ValueError) as e:
+        return {"status": "error", "message": str(e)}
+    except Exception as e:
+        logging.exception("Error processing Claude translation response")
+        return {"status": "error", "message": "Internal server error"}
+
 # HTTP request handler
 class Handler(BaseHTTPRequestHandler):
     def _set_headers(self, code=200):
@@ -563,6 +611,83 @@ class Handler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': 'Internal server error'}).encode())
             return
 
+        if parsed.path == '/human_prompt':
+            ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+            CLAUDE_API_URL    = "https://api.anthropic.com/v1/messages"
+
+            length = int(self.headers.get('Content-Length', 0))
+            logging.info("Reading %d bytes for Claude prompt", length)
+            raw = self.rfile.read(length)
+            prompt = raw.decode('utf-8', errors='replace')
+            logging.debug("Prompt received: %s", prompt[:200] + ('…' if len(prompt)>200 else ''))
+
+            if not prompt.strip():
+                logging.warning("No prompt provided in body")
+                self._set_headers(400)
+                self.wfile.write(json.dumps({'error': "Missing 'prompt' in request body"}).encode())
+                return
+            human_prompt = build_translation_prompt(prompt)
+            try:
+                headers = {
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json"
+                }
+                body = {
+                    "model": "claude-sonnet-4-20250514",
+                    "max_tokens": 4096,
+                    "temperature": 0.7,
+                    "messages": [{"role": "user", "content": human_prompt}]
+                }
+                logging.info("Sending human prompt to Claude API to translate")
+                
+                resp = requests.post(CLAUDE_API_URL, headers=headers, json=body)
+                resp.raise_for_status()
+                reply = resp.json()["content"][0]["text"]
+                logging.info("Received response from Claude (length %d)", len(reply))
+
+                logging.info("Saving prompt/response to DB")
+                with psycopg.connect(**DB_CONFIG) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "INSERT INTO claude_prompt_logs (prompt, response) VALUES (%s, %s)",
+                            (human_prompt, reply)
+                        )
+                logging.info("Saved to claude_prompt_logs")
+                required_fields = trim_required_fields(reply)
+                
+                sql_prompt = build_sql_prompt(required_fields)
+                sql_body = {
+                    "model": "claude-sonnet-4-20250514",
+                    "max_tokens": 4096,
+                    "temperature": 0.7,
+                    "messages": [{"role": "user", "content": sql_prompt}]
+                }
+                logging.info("Sending sql prompt to Claude API")
+                sql_resp = requests.post(CLAUDE_API_URL, headers=headers, json=sql_body)
+                sql_resp.raise_for_status()
+                sql_reply = sql_resp.json()["content"][0]["text"]
+                logging.info("Received response from Claude (length %d)", len(sql_reply))
+
+                logging.info("Saving prompt/response to DB")
+                with psycopg.connect(**DB_CONFIG) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "INSERT INTO claude_prompt_logs (prompt, response) VALUES (%s, %s)",
+                            (sql_prompt, sql_reply)
+                        )
+                logging.info("Saved to claude_prompt_logs")
+                sqlres = handle_claude_sql_response(reply)
+                self._set_headers(200)
+                self.wfile.write(json.dumps({'prompt': sql_prompt, 'response': sql_reply, 'sqlres': str(sqlres)}).encode())
+
+            except Exception as e:
+                logging.exception("Error handling /claude_prompt: " ,e)
+                self._set_headers(500)
+                self.wfile.write(json.dumps({'error': 'Internal server error'}).encode())
+            return
+
+  
         # ── Ingest Endpoint ────────────────────────────────────────
         length = int(self.headers.get('Content-Length', 0))
         logging.info("Reading %d bytes for ingest", length)

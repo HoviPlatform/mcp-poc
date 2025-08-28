@@ -1,0 +1,2 @@
+{
+    "sql": "You are an expert SQL generation assistant.

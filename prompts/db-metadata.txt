@@ -1,0 +1,186 @@
+
+Given the following *flattened metrics schema* (keys and types):
+
+{
+  \"cpc\": \"string\",
+  \"cpm\": \"string\",
+  \"ctr\": \"string\",
+  \"likes\": \"integer\",
+  \"reach\": \"string\",
+  \"spend\": \"string\",
+  \"clicks\": \"string\",
+  \"result\": \"string\",
+  \"shares\": \"integer\",
+  \"ad_name\": \"string\",
+  \"ad_text\": \"string\",
+  \"follows\": \"integer\",
+  \"comments\": \"integer\",
+  \"purchase\": \"integer\",
+  \"frequency\": \"string\",
+  \"tt_app_id\": \"integer\",
+  \"adgroup_id\": \"integer\",
+  \"conversion\": \"string\",
+  \"sales_lead\": \"integer\",
+  \"app_install\": \"integer\",
+  \"campaign_id\": \"integer\",
+  \"impressions\": \"string\",
+  \"result_rate\": \"string\",
+  \"tt_app_name\": \"string\",
+  \"adgroup_name\": \"string\",
+  \"cta_purchase\": \"string\",
+  \"registration\": \"integer\",
+  \"vta_purchase\": \"string\",
+  \"campaign_name\": \"string\",
+  \"mobile_app_id\": \"string\",
+  \"purchase_rate\": \"integer\",
+  \"cta_conversion\": \"string\",
+  \"placement_type\": \"string\",
+  \"profile_visits\": \"integer\",
+  \"promotion_type\": \"string\",
+  \"total_pageview\": \"string\",
+  \"vta_conversion\": \"string\",
+  \"conversion_rate\": \"string\",
+  \"cost_per_result\": \"string\",
+  \"onsite_shopping\": \"string\",
+  \"sales_lead_rate\": \"integer\",
+  \"video_views_p25\": \"integer\",
+  \"video_views_p50\": \"integer\",
+  \"video_views_p75\": \"integer\",
+  \"complete_payment\": \"string\",
+  \"real_time_result\": \"string\",
+  \"video_views_p100\": \"integer\",
+  \"video_watched_2s\": \"integer\",
+  \"video_watched_6s\": \"integer\",
+  \"cost_per_purchase\": \"integer\",
+  \"registration_rate\": \"integer\",
+  \"average_video_play\": \"float\",
+  \"video_play_actions\": \"integer\",
+  \"cost_per_conversion\": \"string\",
+  \"cost_per_sales_lead\": \"integer\",
+  \"profile_visits_rate\": \"integer\",
+  \"clicks_on_music_disc\": \"integer\",
+  \"cost_per_app_install\": \"integer\",
+  \"real_time_conversion\": \"string\",
+  \"total_purchase_value\": \"string\",
+  \"cost_per_1000_reached\": \"string\",
+  \"cost_per_registration\": \"integer\",
+  \"real_time_app_install\": \"integer\",
+  \"real_time_result_rate\": \"string\",
+  \"secondary_goal_result\": \"string\",
+  \"dpa_target_audience_type\": \"string\",
+  \"cost_per_total_sales_lead\": \"integer\",
+  \"real_time_conversion_rate\": \"string\",
+  \"real_time_cost_per_result\": \"string\",
+  \"real_time_app_install_cost\": \"integer\",
+  \"secondary_goal_result_rate\": \"integer\",
+  \"value_per_complete_payment\": \"string\",
+  \"average_video_play_per_user\": \"float\",
+  \"total_app_event_add_to_cart\": \"integer\",
+  \"total_complete_payment_rate\": \"string\",
+  \"total_onsite_shopping_value\": \"string\",
+  \"real_time_cost_per_conversion\": \"string\",
+  \"cost_per_secondary_goal_result\": \"string\",
+  \"cost_per_total_app_event_add_to_cart\": \"integer\"
+}
+
+
+The actual table structure for context is fetched with the following query accompanied with it's results:
+
+{
+"SELECT \n    c.table_name,\n    json_agg(\n        json_build_object(\n            'column', c.column_name,\n            'type', c.data_type,\n            'nullable', c.is_nullable,\n            'default', c.column_default,\n            'fk', fk.foreign_table || '(' || fk.foreign_column || ')'\n        ) ORDER BY c.ordinal_position\n    ) AS columns\nFROM information_schema.columns c\nLEFT JOIN (\n    SELECT \n        kcu.table_name,\n        kcu.column_name,\n        ccu.table_name AS foreign_table,\n        ccu.column_name AS foreign_column\n    FROM information_schema.table_constraints tc\n    JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name\n    JOIN information_schema.constraint_column_usage ccu ON tc.constraint_name = ccu.constraint_name\n    WHERE tc.constraint_type = 'FOREIGN KEY'\n) fk ON c.table_name = fk.table_name AND c.column_name = fk.column_name\nWHERE c.table_name IN ('advertisers', 'campaigns', 'ad_groups', 'ads', 'data_table')\nGROUP BY c.table_name\nORDER BY c.table_name": [
+	{
+		"table_name" : "ad_groups",
+		"columns" : "[{\"column\" : \"adgroup_id\", \"type\" : \"bigint\", \"nullable\" : \"NO\", \"default\" : null, \"fk\" : null}, {\"column\" : \"advertiser_id\", \"type\" : \"bigint\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : \"advertisers(advertiser_id)\"}, {\"column\" : \"campaign_id\", \"type\" : \"bigint\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : \"campaigns(campaign_id)\"}, {\"column\" : \"share_disabled\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"creative_material_mode\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"dayparting\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"placements\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"is_hfss\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"secondary_status\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"category_exclusion_ids\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"skip_learning_phase\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"is_new_structure\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"targeting_expansion\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"device_price_ranges\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"spending_power\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"billing_event\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"adgroup_name\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"pixel_id\", \"type\" : \"bigint\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"schedule_type\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"brand_safety_type\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"network_types\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"household_income\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"optimization_goal\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"bid_price\", \"type\" : \"integer\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"languages\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"excluded_audience_ids\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"search_result_enabled\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"age_groups\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"is_smart_performance_campaign\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"deep_cpa_bid\", \"type\" : \"integer\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"optimization_event\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"create_time\", \"type\" : \"timestamp without time zone\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"campaign_name\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"schedule_start_time\", \"type\" : \"timestamp without time zone\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"operating_systems\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"gender\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"category_id\", \"type\" : \"integer\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"placement_type\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"promotion_type\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"inventory_filter_enabled\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"interest_category_ids\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"bid_display_mode\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"ios14_quota_type\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"budget_mode\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"interest_keyword_ids\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"actions\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"operation_status\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"pacing\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"modify_time\", \"type\" : \"timestamp without time zone\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"budget\", \"type\" : \"integer\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"audience_ids\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"comment_disabled\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"conversion_bid_price\", \"type\" : \"integer\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"included_custom_actions\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"location_ids\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"auto_targeting_enabled\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"bid_type\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"isp_ids\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"device_model_ids\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"video_download_disabled\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"contextual_tag_ids\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"schedule_end_time\", \"type\" : \"timestamp without time zone\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"excluded_custom_actions\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"scheduled_budget\", \"type\" : \"integer\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}]"
+	},
+	{
+		"table_name" : "ads",
+		"columns" : "[{\"column\" : \"ad_id\", \"type\" : \"bigint\", \"nullable\" : \"NO\", \"default\" : null, \"fk\" : null}, {\"column\" : \"advertiser_id\", \"type\" : \"bigint\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : \"advertisers(advertiser_id)\"}, {\"column\" : \"campaign_id\", \"type\" : \"bigint\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : \"campaigns(campaign_id)\"}, {\"column\" : \"adgroup_id\", \"type\" : \"bigint\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : \"ad_groups(adgroup_id)\"}, {\"column\" : \"ad_name\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"ad_text\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"ad_format\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"app_name\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"avatar_icon_web_uri\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"branded_content_disabled\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"call_to_action_id\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"campaign_name\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"create_time\", \"type\" : \"timestamp without time zone\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"dark_post_status\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"display_name\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"identity_id\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"identity_type\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"image_ids\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"landing_page_url\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"modify_time\", \"type\" : \"timestamp without time zone\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"operation_status\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"optimization_event\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"playable_url\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"profile_image_url\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"secondary_status\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"tiktok_item_id\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"tracking_pixel_id\", \"type\" : \"bigint\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"utm_params\", \"type\" : \"jsonb\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"vast_moat_enabled\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"video_id\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"viewability_postbid_partner\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"brand_safety_postbid_partner\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"is_new_structure\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"is_aco\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"creative_authorized\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}]"
+	},
+	{
+		"table_name" : "advertisers",
+		"columns" : "[{\"column\" : \"language\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"license_no\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"industry\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"display_timezone\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"balance\", \"type\" : \"numeric\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"contacter\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"timezone\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"name\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"role\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"currency\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"advertiser_id\", \"type\" : \"bigint\", \"nullable\" : \"NO\", \"default\" : null, \"fk\" : null}, {\"column\" : \"email\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"telephone_number\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"advertiser_account_type\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"promotion_area\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"cellphone_number\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"create_time\", \"type\" : \"bigint\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"description\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"status\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"company\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"country\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}]"
+	},
+	{
+		"table_name" : "campaigns",
+		"columns" : "[{\"column\" : \"campaign_id\", \"type\" : \"bigint\", \"nullable\" : \"NO\", \"default\" : null, \"fk\" : null}, {\"column\" : \"modify_time\", \"type\" : \"timestamp without time zone\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"budget\", \"type\" : \"numeric\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"is_search_campaign\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"advertiser_id\", \"type\" : \"bigint\", \"nullable\" : \"NO\", \"default\" : null, \"fk\" : \"advertisers(advertiser_id)\"}, {\"column\" : \"is_new_structure\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"is_smart_performance_campaign\", \"type\" : \"boolean\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"budget_mode\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"app_promotion_type\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"create_time\", \"type\" : \"timestamp without time zone\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"campaign_name\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"campaign_type\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"roas_bid\", \"type\" : \"numeric\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"objective\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"objective_type\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"operation_status\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}, {\"column\" : \"secondary_status\", \"type\" : \"text\", \"nullable\" : \"YES\", \"default\" : null, \"fk\" : null}]"
+	},
+	{
+		"table_name" : "data_table",
+		"columns" : "[{\"column\" : \"id\", \"type\" : \"uuid\", \"nullable\" : \"NO\", \"default\" : null, \"fk\" : null}, {\"column\" : \"metrics\", \"type\" : \"jsonb\", \"nullable\" : \"NO\", \"default\" : null, \"fk\" : null}, {\"column\" : \"raw_data\", \"type\" : \"jsonb\", \"nullable\" : \"NO\", \"default\" : null, \"fk\" : null}]"
+	}
+]}
+
+The following is the business logic of the tables:
+1. Advertiser (Account Level)
+Role:
+The Advertiser account is the highest level entity in the TikTok Ads Manager. It represents a business or brand that wants to run advertising campaigns on TikTok.
+Key Functions:
+Houses all campaigns, ad groups, and ads.
+Central point for billing, permissions, and user roles.
+Linked to a business center or TikTok for Business profile.
+Goals:
+Define the brand’s advertising presence.
+Set up account-wide settings: pixels, payments, permissions.
+Centralize performance reporting across all assets.
+
+2. Campaign Level
+Role:
+The campaign is where you define the overall objective of your advertising effort.
+Key Functions:
+Set the marketing goal (e.g., conversions, traffic, reach).
+Determine budget at the campaign level (optional).
+Serve as a container for one or more ad groups.
+Goals:
+Guide optimization at the top level (e.g., TikTok’s system knows whether to drive installs, traffic, etc.).
+Ensure consistency in overarching messaging and strategy.
+Example Objectives:
+Reach
+Traffic
+Conversions
+App Installs
+Lead Generation
+
+3. Ad Group Level
+Role:
+The ad group is where you define targeting, bidding, placements, and optimization logic. It's the layer that handles the mechanics of ad delivery.
+Key Functions:
+Define audience targeting: demographics, interests, behaviors, custom/lookalike audiences.
+Set placements: TikTok, Pangle, News Feed Apps, etc.
+Configure budget (if not done at campaign level).
+Choose bidding strategy and optimization goal (e.g., CPC, CPM, oCPM).
+Goals:
+Segment audience strategies and delivery rules within a campaign.
+Test variations in targeting or delivery methods for performance comparison.
+Control how, where, and to whom your ads are shown.
+
+4. Ad Level
+Role:
+The ad is the actual creative unit shown to TikTok users.
+Key Functions:
+Upload creatives (videos, images).
+Define copy (text, CTA, display name, etc.).
+Choose landing pages or TikTok Instant Pages.
+Assign tracking URLs and pixels.
+Goals:
+Engage users with compelling creative content.
+Drive action (e.g., clicks, installs, purchases).
+Enable A/B testing of different ad formats or creatives.
+
+5. Ad Metrics (data table)(Performance & Optimization)
+Role:
+Ad metrics provide quantitative feedback on ad performance across all levels (campaign, ad group, ad).
+Key Metric Categories:
+Delivery: Impressions, Reach, Frequency
+Engagement: Clicks, CTR, Video Views, Shares, Likes
+Conversion: Installs, Add to Cart, Purchases, Custom Events
+Cost Metrics: CPC, CPM, CPA, ROAS
+Goals:
+Evaluate ad effectiveness.
+Identify areas for improvement (e.g., low CTR or high CPA).
+Drive optimization decisions based on campaign goals.
+
+Advertiser (Account)
+  └── Campaign (Marketing Objective)
+        └── Ad Group (Targeting & Delivery Settings)
+              └── Ad (Creative Asset)
+                    └── Metrics (Performance Feedback)
