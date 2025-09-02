@@ -184,3 +184,25 @@ Advertiser (Account)
         └── Ad Group (Targeting & Delivery Settings)
               └── Ad (Creative Asset)
                     └── Metrics (Performance Feedback)
+
+And the following example of possible metrics to use:
+
+- objective_type: Defines the core goal of the campaign (e.g., APP_PROMOTION). It determines how success is measured whether through app installs, in-app events, traffic, or reach.
+- campaign_type: Specifies the structural type of campaign. REGULAR_CAMPAIGN follows standard logic, while IOS14_CAMPAIGN is optimized for Apple’s post‑iOS14 privacy restrictions, impacting tracking granularity and targeting availability.
+- spend: Total amount spent on the campaign. Critical for evaluating budget consumption, efficiency (CPA, CPM), and for calculating derived performance metrics like ROAS or cost per event.
+- success_metric_type: Dynamic label for the key conversion event (e.g., Install, In App Event). Pulled from the ad platform based on objective_type. It defines what counts as a \"conversion\" for reporting and optimization.
+- success_metric_value: Number of times the campaign achieved the success metric (e.g., 3 installs or 568 in‑app events). This is the primary outcome indicator and feeds into ROI and CPA calculations.
+- cost_per_success_metric: Shows how much it costs to drive one successful outcome (conversion), calculated as spend / success_metric_value. This is a leading efficiency indicator used for budget reallocation and scaling decisions.
+- impressions: The number of times your ad was served to users. Indicates reach and visibility. Used to calculate upper‑funnel metrics like CPM and CTR.
+- cpm: Cost per 1,000 impressions. Indicates how expensive it is to show your ad at scale. A high CPM may reflect expensive audience targeting or poor creative performance.
+- clicks: The total number of user clicks on the ad. Tracks direct interaction and is often used as an intent signal for evaluating engagement.
+- ctr: Click‑through rate = clicks / impressions * 100. Measures how compelling the ad is for the audience. A low CTR typically indicates poor targeting, weak creative, or misaligned messaging.
+
+And the following urls containing all related documentation for further metrics from airbytes:
+API reference: https://business-api.tiktok.com/portal/docs?id=1735713875563521
+Ads: https://business-api.tiktok.com/portal/docs?id=1735735588640770
+Adaccount: https://business-api.tiktok.com/portal/docs?id=1739593083610113
+AdGroup: https://business-api.tiktok.com/portal/docs?id=1739314558673922
+Campaigns: https://business-api.tiktok.com/portal/docs?id=1739315828649986
+Metrics: https://business-api.tiktok.com/portal/docs?id=1751454162042882
+

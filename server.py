@@ -532,12 +532,15 @@ def trim_required_fields(raw_response: str):
     try:
         json_string = re.search(r'```json\s*\n(.*?)\n```', raw_response, re.DOTALL).group(1)
         parsed = json.loads(json_string)
-        if "required_fields" not in parsed or not parsed["required_fields"].strip():
+        if "required_fields" not in parsed:
             raise ValueError("Missing or empty 'required_fields' in Claude response")
         
-        if "calculated_metrics" not in parsed or not parsed["calculated_metrics"].strip():
+        if "calculated_metrics" not in parsed:
             raise ValueError("Missing or empty 'calculated_metrics' in Claude response")
-
+        print("===============================================================")
+        print("parsed translation obj")
+        print(parsed)
+        print("===============================================================")
         return json.dumps(parsed)
 
     except (json.JSONDecodeError, ValueError) as e:
@@ -677,7 +680,7 @@ class Handler(BaseHTTPRequestHandler):
                             (sql_prompt, sql_reply)
                         )
                 logging.info("Saved to claude_prompt_logs")
-                sqlres = handle_claude_sql_response(reply)
+                sqlres = handle_claude_sql_response(sql_reply)
                 self._set_headers(200)
                 self.wfile.write(json.dumps({'prompt': sql_prompt, 'response': sql_reply, 'sqlres': str(sqlres)}).encode())
 

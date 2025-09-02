@@ -8,8 +8,6 @@
 ## Response Format:
 ```json
 {
-  "primary_intent": "What the user explicitly asked for",
-  "comprehensive_approach": "How you're expanding to provide richer insights",
   "required_fields": [
     {
       "field_name": "field_name",
@@ -31,8 +29,6 @@
 ## Example Response Structure:
 ```json
 {
-  "primary_intent": "Campaign performance overview",
-  "comprehensive_approach": "Provide complete performance picture including efficiency, engagement, and optimization insights across all available dimensions",
   "required_fields": [
     {
       "field_name": "campaign_id", 
