@@ -451,30 +451,22 @@ def save_metrics_and_meta(payload):
 
 def handle_claude_sql_response(raw_response: str):
     try:
-        print("raw resp")
-        print(raw_response)
-        # Step 1: Extract and parse JSON object
-        # claude_response = json.loads(raw_response)
-        # sql_query_v2 = claude_response["sql_query"]
+        # extract and parse JSON object
         json_string = re.search(r'```json\s*\n(.*?)\n```', raw_response, re.DOTALL).group(1)
-        print(" json_string")
-        print(json_string)
         parsed = json.loads(json_string)
-        print(" parsed")
-        print(parsed)
-        # Step 2: Validate structure
+        # validate structure
         if "sql_query" not in parsed or not parsed["sql_query"].strip():
             raise ValueError("Missing or empty 'sql_query' in Claude response")
 
         sql_query = parsed["sql_query"].strip()
         print("sql_query")
         print(sql_query)
-        # Step 3: (Optional) Basic SQL syntax check
+        # Basic SQL syntax check
         parsed_sql = sqlparse.parse(sql_query)
         if not parsed_sql or len(parsed_sql) == 0:
             raise ValueError("Invalid SQL syntax")
 
-        # Step 4: Execute the SQL query
+        # execute the SQL query
         with psycopg.connect(**DB_CONFIG) as conn:
             with conn.cursor() as cur:
                 cur.execute(sql_query)
@@ -485,11 +477,6 @@ def handle_claude_sql_response(raw_response: str):
                 else:  # INSERT/UPDATE/DELETE
                     result = {"rowcount": cur.rowcount}
 
-        # return {
-        #     "status": "success",
-        #     "sql_query": sql_query,
-        #     "result": result
-        # }
         return {"result": result}
 
     except (json.JSONDecodeError, ValueError) as e:
@@ -537,10 +524,6 @@ def trim_required_fields(raw_response: str):
         
         if "calculated_metrics" not in parsed:
             raise ValueError("Missing or empty 'calculated_metrics' in Claude response")
-        print("===============================================================")
-        print("parsed translation obj")
-        print(parsed)
-        print("===============================================================")
         return json.dumps(parsed)
 
     except (json.JSONDecodeError, ValueError) as e:
@@ -603,8 +586,6 @@ class Handler(BaseHTTPRequestHandler):
                         )
                 logging.info("Saved to claude_prompt_logs")
                 sqlres = handle_claude_sql_response(reply)
-                print("sqlres: " )
-                print(sqlres)
                 self._set_headers(200)
                 self.wfile.write(json.dumps({'prompt': prompt, 'response': reply, 'sqlres': str(sqlres)}).encode())
 
